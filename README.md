@@ -42,7 +42,7 @@ The LinkedIn Post Automation workflow generates professional LinkedIn posts, inc
 ## Installation
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/jigneshreddy711/N8N-Workflows.git
    ```
 2. **Import Workflows**:
    - Open n8n and import the `meal-ai.json` and `gemini-linkedin.json` files from the repository.
