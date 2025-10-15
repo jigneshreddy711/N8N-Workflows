@@ -1,0 +1,391 @@
+{
+  "name": "gemini-linkedin",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "LinkedIn Post Generator ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Topic",
+              "placeholder": "Enter prompt here....",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "80b5a7a4-038c-453a-b58d-9d6f69e9ceb8",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        512,
+        304
+      ],
+      "webhookId": "e06e171b-45cc-4c4f-bbc5-ffedd4d60f47",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "694a158d-53fd-425c-9a42-be4288c17ac9",
+              "name": "chatInput",
+              "type": "string",
+              "value": "={{ $json.Topic }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e11b4bc3-db6c-463e-8f6f-7ddef71b413c",
+      "name": "Mapper",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        768,
+        304
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=I need help creating a professional LinkedIn post for the topic: \"{{ $json.chatInput }}\". The output should include:\n\n1. **LinkedIn Post Content**:\n   - Write an engaging and informative LinkedIn post on the topic \" {{ $json.chatInput }}\".\n   - Start with an attention-grabbing hook that entices readers to read further.\n   - Provide valuable insights or actionable tips related to the topic.\n   - The tone should be professional, clear, and concise, using language that's easy to understand.\n   - End with a call to action (CTA) encouraging the audience to engage, reflect, or share their thoughts.\n   - Include relevant hashtags to increase engagement and visibility on LinkedIn. Make sure these hashtags are specific to the topic and aligned with trending keywords for LinkedIn posts.\n\n2. Image Generation Prompt:\n\nVisual Aesthetic:\nThe image should align with LinkedIn's professional and corporate atmosphere. Make sure it conveys sophistication, modernity, and relevance to the topic. Avoid overly busy designs.\n\nColor Palette:\nStick to corporate tones such as blues, whites, and grays to maintain a professional and clean look. Consider using gradients for depth or subtle contrasts to highlight key elements.\n\nImagery:\n\nFocus on visualizing the topic of the post. For AI in Business, this could involve:\n\nA futuristic office or workspace setting, highlighting cutting-edge technologies.\n\nIcons or symbols that represent data analysis, AI, or automation.\n\nVisuals of humans interacting with AI systems (e.g., robots working alongside humans or using AI tools).\n\nAbstract representations of neural networks or digital data flows.\n\nNo Text Overlay:\n\nDo not include any text in the image, ensuring it remains clean and focuses solely on the visuals.\n\nText overlays or titles are not necessary in this case to keep the professional look intact.\n\nStyle and Tone:\n\nThe design should be minimalist, modern, and sleek. Use a balanced layout with a focus on professional imagery that resonates with business-minded audiences.\n\nAvoid overly complex or distracting backgrounds—keep it clean and visually appealing.\n\nFont Style (if applicable):\n\nIf any text were used in future visuals or branding (though none should appear in this image), use clean, modern fonts like Helvetica, Arial, or Roboto—sans-serif fonts that are readable and professional.\n\nimage prompt can be like this short and simple\nA modern co-working space where AI assistants and human employees brainstorm around a digital whiteboard. The scene shows innovation and teamwork, with a multicultural group, smart gadgets, and subtle futuristic elements. Warm natural lighting and a balanced, professional layout ideal for a LinkedIn audience.\n the JSON output would look like this:\n{\n  \"post_content\": {\n    \"text\": \"The Future of AI in Business: How It is Transforming Industries 🚀\\n\\nAI in Business is no longer just a buzzword; it's revolutionizing the way businesses operate today. From improving efficiency to driving innovation, AI is an essential tool for modern companies.\\n\\nHere are some key insights on how AI in Business is shaping the future of industries:\\n1. Enhanced Data Analytics: AI helps businesses make data-driven decisions with greater accuracy.\\n2. Automation of Tasks: AI is automating repetitive tasks, improving operational efficiency.\\n3. Personalized Experiences: AI is enabling personalized customer experiences in real-time.\\n\\nIs your business ready to embrace AI in Business? Let's discuss how it can help drive growth and innovation.\\n\\n#AIinBusiness #Innovation #FutureOfWork #BusinessGrowth #TechnologyTrends #DigitalTransformation\"\n  },\n  \"image_prompt\": {\n    \"description\": \"Create an image for a LinkedIn post on the topic of AI in Business. The image should:\\n- Feature modern, sleek visuals that align with the corporate tone of LinkedIn.\\n- Visualize AI in Business through elements like a futuristic office, AI-powered systems, or human-robot collaboration.\\n- Use a professional color palette like blues, whites, and grays.\\n- The optional text overlay (if relevant) could be something like 'The Future of AI in Business' or 'Driving Innovation with AI'.\\n- The design should use clean, modern fonts that are easily readable and match the professional style of LinkedIn posts.\"\n  }\n}\n"
+        }
+      },
+      "id": "22037c57-c547-48fa-8c6e-b987c0368907",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1008,
+        304
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "id": "3fda35bc-ca86-41d4-ac47-6bacfccfdfd0",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        960,
+        544
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "R6IfSdBCd91weJ21",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the data field (which is a string) and parse it into a JSON object\nconst dataString = $input.first().json.data;\n\n// Parse the data string into a valid JSON object\nconst dataObject = JSON.parse(dataString);\n\n// Now you can safely extract the base64 image data\nconst base64Image = dataObject.base64_img;\n\n// Decode the base64 string and create a buffer from it\nconst buffer = Buffer.from(base64Image, 'base64');\n\n// You can optionally store this buffer in a temporary file or return the buffer as-is\nreturn {\n  json: {\n    decoded_image_buffer: buffer.toString('base64'), // Returning as base64 for further processing\n    image_length: buffer.length, // Optional: To verify the size of the decoded image\n  }\n};\n"
+      },
+      "id": "fb3ab34d-c822-45c9-8a46-3ea99a2947f5",
+      "name": "Decoder",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1968,
+        304
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.output\n\nconst cleanedInput = input.replace(/```json|```/g, '').trim();\n\n// Parse the cleaned JSON\nconst parsedOutput = JSON.parse(cleanedInput);\n\n// Extract the `post_content.text` and `image_prompt.description` details\nconst postContent = parsedOutput.post_content.text;\nconst imagePrompt = parsedOutput.image_prompt.description;\n\n// Prepare the final output in the desired JSON structure\nreturn {\n  post_content: postContent,\n  image_prompt: imagePrompt\n};"
+      },
+      "id": "fb1ee1da-4cac-4798-9c6f-229159ab0d0c",
+      "name": "Normalizer",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1392,
+        304
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://gen-imager.p.rapidapi.com/genimager/index.php",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "gen-imager.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "your gen-imager rapid api key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Prompt",
+              "value": "={{ $json.image_prompt }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "178c51e0-2b36-43a7-9d13-3c60666f3c8c",
+      "name": "Text to image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1680,
+        304
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "> **AI-Powered LinkedIn Post Automation**  \n>  \n> This workflow automates the process of creating LinkedIn posts based on user-submitted topics. It generates both **content** and a **professional image** using AI, and automatically publishes the post to LinkedIn.\n>  \n> - **Trigger**: Activated when a user submits a form with a topic for a LinkedIn post.\n> - **AI Content Generation**: Uses Google Gemini to generate an engaging post and image prompt.\n> - **Image Creation**: The prompt is sent to **[gen-imager API](https://rapidapi.com/PrineshPatel/api/gen-imager)** for image generation.\n> - **Post Creation**: The generated text and image are posted directly to LinkedIn.\n>  \n> **Key Features**:  \n> 1. Automated post creation for LinkedIn.  \n> 2. Professional image generation with an AI-driven prompt.  \n> 3. Instant publishing to your LinkedIn feed.\n",
+        "height": 700
+      },
+      "id": "e1f1b42c-2101-4ce4-adee-d1e8e1887dd8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "**On Form Submission**  \n> Triggered when a user submits a topic through the form. This starts the workflow and captures the topic to generate a LinkedIn post.\n  ",
+        "height": 320
+      },
+      "id": "98b22981-d175-4420-8bb4-a43359924eea",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        448,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "> **Mapper**  \n> Maps the user-submitted topic from the form and prepares it for the next step by assigning it to a variable (`chatInput`).\n",
+        "height": 320
+      },
+      "id": "b342f0ae-c3fa-44f2-85fb-c9b2d46a928f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "**AI Agent**  \n> Uses the **Google Gemini** model to generate professional content for the LinkedIn post, including text and an image prompt based on the given topic.\n",
+        "height": 320,
+        "width": 300
+      },
+      "id": "3e7df005-af0d-410f-877a-e30d6ac6222b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": " **Normalizer**  \n> Cleans and formats the AI-generated output into a readable structure for the next steps, extracting both the post text and image prompt.\n",
+        "height": 320
+      },
+      "id": "e8df3e74-b992-4990-ba7b-03a6c9f1e04f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "> **Text to Image**  \n> Sends the image prompt to the **[gen-imager API](https://rapidapi.com/PrineshPatel/api/gen-imager)** to generate a professional image for the LinkedIn post based on the given topic.\n",
+        "height": 320
+      },
+      "id": "99541200-4ccd-4cf9-bb7a-9918c1345dd6",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "**Decoder**  \n> Decodes the image from its base64 format into a usable binary buffer that can be uploaded to LinkedIn.\n",
+        "height": 320
+      },
+      "id": "cf22bc5e-ddaf-4a23-b709-5ec6293ab0b0",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1888,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "> **LinkedIn**  \n> Publishes the generated LinkedIn post, including the text and the newly created image, directly to the user's LinkedIn profile.\n",
+        "height": 320
+      },
+      "id": "8d62f5bf-51ae-4f19-9f57-64d6723e21b9",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2192,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "person": "KN9jjSWMhv",
+        "text": "={{ $('Normalizer').item.json.post_content }}",
+        "shareMediaCategory": "IMAGE",
+        "binaryPropertyName": "={{ $json.decoded_image_buffer }}",
+        "additionalFields": {}
+      },
+      "id": "f0d7ba84-4db9-4c95-b718-c001bccd63f3",
+      "name": "Create a post",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        2272,
+        304
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "FAPUKoZ2f3IOTr9x",
+          "name": "LinkedIn account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Mapper": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decoder": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Normalizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizer": {
+      "main": [
+        [
+          {
+            "node": "Text to image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to image": {
+      "main": [
+        [
+          {
+            "node": "Decoder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Mapper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "975effd3-5bf0-400c-a21b-e1b961f6d992",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "99af01b1580d2933c0724a2ee90d2910b0af559d14f56f044ae4110982d0dc4e"
+  },
+  "id": "28dMYEUKzT7bWGQ8",
+  "tags": [
+    {
+      "createdAt": "2025-08-30T13:07:37.780Z",
+      "updatedAt": "2025-08-30T13:07:37.780Z",
+      "id": "uNUnj3iYzrv3pNT5",
+      "name": "Digital Marketing"
+    },
+    {
+      "createdAt": "2025-08-30T13:07:37.901Z",
+      "updatedAt": "2025-08-30T13:07:37.901Z",
+      "id": "dWEQ0prD8n7BJ2Tm",
+      "name": "LinkedIn"
+    }
+  ]
+}

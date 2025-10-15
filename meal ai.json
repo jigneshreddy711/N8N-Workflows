@@ -1,0 +1,120 @@
+{
+  "name": "meal ai",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a nutrition expert AI specialized in analyzing meal images. Given an image of a meal, perform the following steps:\n\n1. Identify and list all visible food items in the image, including approximate portion sizes (e.g., \"a medium apple, 200g grilled chicken breast, 1 cup rice\").\n\n2. For each food item, estimate the macro nutrients based on standard nutritional data from reliable sources like USDA databases. Include:\n   - Calories (kcal)\n   - Protein (g)\n   - Carbohydrates (g, with breakdown for sugars and fiber if possible)\n   - Fat (g, with breakdown for saturated, unsaturated if relevant)\n   - Other relevant micros like sodium (mg), vitamins (e.g., Vitamin C in mg), or minerals if identifiable.\n\n3. Aggregate the totals for the entire meal.\n\n4. If the image quality is poor or items are unclear, note assumptions or uncertainties.",
+        "hasOutputParser": true,
+        "options": {
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d165cd84-e5da-4725-a604-4887e116c778",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-05-20",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "90c2d351-d913-4253-ab67-14e21caf1801",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "R6IfSdBCd91weJ21",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"success\": true,\n  \"data\": {\n    \"calories\": 450,\n    \"protein\": 20,\n    \"carbs\": 50,\n    \"fat\": 15,\n    \"vitamins\": {\n      \"vitaminA\": 10,\n      \"vitaminC\": 5\n    }\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        208
+      ],
+      "id": "5e510d06-c08d-49d4-82eb-72439c7efad7",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meal-ai",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "3ebf1210-b509-4067-a850-be68901dd9bb",
+      "name": "Webhook",
+      "webhookId": "90e10c0f-8ff3-402b-bdc9-7e9248f6d8a5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6acbdcaf-f93c-4da7-8f4f-1a62b9ab1c90",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "99af01b1580d2933c0724a2ee90d2910b0af559d14f56f044ae4110982d0dc4e"
+  },
+  "id": "7RhkbPceHYy6zrIf",
+  "tags": []
+}
